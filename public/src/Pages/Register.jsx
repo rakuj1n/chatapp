@@ -1,16 +1,62 @@
 import { Link } from 'react-router-dom'
 import Logo from '../assets/logo.svg'
 import styled from 'styled-components'
+import { useState,useEffect } from 'react'
+import {ToastContainer, toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import axios from 'axios'
+import { registerRoute } from '../utilities/APIRoutes'
 
 export default function Register() {
 
-    const handleSubmit = (e) => {
+    const [values,setValues] = useState({
+        username:'',
+        email:'',
+        password:'',
+        confirmPassword:''
+    })
+
+    const toastOptions = {
+        position: "bottom-right",
+        autoClose: 8000,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark"
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        alert('form')
+        if (handleValidation()) {
+            const {password, confirmPassword, username, email} = values
+            const {data} = await axios.post(registerRoute,{ username, email, password})
+        }
+    }
+
+    const handleValidation = () => {
+        const {password, confirmPassword, username, email} = values
+        if (password !== confirmPassword) {
+            toast.error("Password and confirm password should be same.",toastOptions)
+            return false
+        } else if (username.length < 3) {
+            toast.error("Username should be greater than 3 characters.",toastOptions)
+            return false
+        } else if (password.length < 7) {
+            toast.error("Password should be at least 8 characters.",toastOptions)
+            return false
+        } else if (email === "") {
+            toast.error("Email is required.",toastOptions)
+            return false
+        }
+        return true
     }
 
     const handleChange = (e) => {
-
+        setValues((prev) => {
+            return {
+                ...prev,
+                [e.target.name]:e.target.value
+            }
+        })
     }
 
     return (
@@ -24,31 +70,36 @@ export default function Register() {
                 <input 
                     type='text' 
                     placeholder='Username' 
-                    name='username' 
+                    name='username'
+                    value={values.username} 
                     onChange={e=>handleChange(e)}
                 />
                 <input 
                     type='email' 
                     placeholder='Email' 
                     name='email' 
+                    value={values.email} 
                     onChange={e=>handleChange(e)}
                 />
                 <input 
                     type='password' 
                     placeholder='Password' 
-                    name='Password' 
+                    name='password' 
+                    value={values.password} 
                     onChange={e=>handleChange(e)}
                 />
                 <input 
                     type='password' 
                     placeholder='Confirm Password' 
                     name='confirmPassword' 
+                    value={values.confirmPassword} 
                     onChange={e=>handleChange(e)}
                 />
                 <button type='submit'>Create User</button>
                 <span>Already have an account? <Link to='/login'>Login</Link></span>
             </form>
         </FormContainer>
+        <ToastContainer />
         </>
     )
 }
@@ -108,6 +159,15 @@ const FormContainer = styled.div`
             transition: 0.5s ease-in-out;
             &:hover {
                 background-color:#4e0eff
+            }
+        }
+        span {
+            color: white;
+            text-transform: uppercase;
+            a {
+                color: #4e0eff;
+                text-decoration: none;
+                font-weight: bold;
             }
         }
     }

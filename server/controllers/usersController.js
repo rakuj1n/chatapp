@@ -15,7 +15,7 @@ module.exports.register = async (req,res,next) => {
             username,
             password
         })
-        return res.json({status:true,user})
+        return res.status(200).json({status:true,user})
     } catch (ex) {
         next(ex)
     }
@@ -33,8 +33,39 @@ module.exports.login = async (req,res,next) => {
         if (!isPasswordValid) {
             return res.json({msg:"Incorrect username or password.", status: false})
         }
-        return res.json({status:true,user})
+        return res.status(200).json({status:true,user})
     } catch (ex) {
         next(ex)
     }
 }
+
+module.exports.setAvatar = async (req,res,next) => {
+ try {
+    const userId = req.params.id
+    const avatarImage = req.body.image
+    const userData = await User.findByIdAndUpdate(userId,{
+        isAvatarImageSet: true,
+        avatarImage,
+    })
+    return res.status(200).json({
+        isSet:userData.isAvatarImageSet,
+        image:userData.avatarImage
+    })
+ } catch (ex) {
+    next(ex)
+ }
+}
+
+module.exports.getAllUsers = async (req,res,next) => {
+    try {  
+      const users = await User.find({_id:{$ne:req.params.id}}).select([
+        "email",
+        "username",
+        "avatarImage",
+        "_id"
+      ])
+      return res.status(200).json(users)
+    } catch (ex) {
+       next(ex)
+    }
+   }

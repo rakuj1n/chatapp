@@ -5,7 +5,7 @@ import { useState,useEffect } from 'react'
 import {ToastContainer, toast} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios'
-import { SetAvatarRoute } from '../utilities/APIRoutes'
+import { setAvatarRoute } from '../utilities/APIRoutes'
 import { Buffer } from 'buffer'
 
 export default function SetAvatar() {
@@ -22,7 +22,32 @@ export default function SetAvatar() {
         draggable: true,
         theme: "dark"
     }
-    const setProfilePicture = async () => {}
+
+    useEffect(() => {
+        if (!localStorage.getItem('chat-app-user')) {
+            navigate('/login')
+           }
+    },[])
+
+    const setProfilePicture = async () => {
+        if (selectedAvatar === undefined) {
+            toast.error("Please select an avatar", toastOptions)
+        } else {
+            const user = JSON.parse(localStorage.getItem("chat-app-user"))
+            const {data} = await axios.post(`${setAvatarRoute}/${user._id}`,{
+                image: avatars[selectedAvatar]
+            })
+            console.log(data)
+            if (data.isSet) {
+                user.isAvatarImageSet = true
+                user.avatarImage = data.image
+                localStorage.setItem("chat-app-user", JSON.stringify(user))
+                navigate('/')
+            } else {
+                toast.error("Error setting avatar. Please try again.", toastOptions)
+            }
+        }
+    }
     
     useEffect(() => {
         (async () => {
@@ -39,8 +64,13 @@ export default function SetAvatar() {
 
     return (
         <>
-        <Container>
-            <div className="title-container">
+        {
+         isLoading ? <Container>
+            <img src={loader} alt="loader" className='loader' />
+         </Container>   
+         :
+         <Container>
+         <div className="title-container">
                 <h1>Pick an avatar as your profile picture</h1>   
             </div>
             <div className='avatars'>
@@ -50,9 +80,11 @@ export default function SetAvatar() {
                             <img src={`data:image/svg+xml;base64,${avatar}`} alt='avatar' onClick={()=>setSelectedAvatar(index)} />
                         </div>
                         )
-                })}
+                    })}
             </div>
+            <button className='submit-btn' onClick={setProfilePicture}>Set as Profile Picture</button>
         </Container>
+    }
         <ToastContainer />
         </>
     )
@@ -93,5 +125,20 @@ const Container = styled.div`
         .selected {
             border:0.4rem solid #4e0eff;
         }
+    }
+    .submit-btn {
+        background-color: #997af0;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0.4rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            transition: 0.5s ease-in-out;
+            &:hover {
+                background-color:#4e0eff
+            }
     }
 `

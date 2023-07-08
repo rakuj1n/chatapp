@@ -4,7 +4,7 @@ import { IoMdSend } from 'react-icons/io'
 import { BsEmojiSmileFill } from 'react-icons/bs'
 import { useState } from 'react'
 
-export default function ChatInput() {
+export default function ChatInput({ handleSendMsg }) {
     
     const [showEmojiPicker, setShowEmojiPicker] = useState(false)
     const [msg,setMsg] = useState("")
@@ -20,6 +20,14 @@ export default function ChatInput() {
         setMsg(message)
     }
 
+    const sendChat = (e) => {
+        e.preventDefault()
+        if (msg.length > 0) {
+            handleSendMsg(msg)
+            setMsg('')
+        }
+    }
+
     return (
 
         <Container>
@@ -29,7 +37,7 @@ export default function ChatInput() {
                     {showEmojiPicker && <Picker onEmojiClick={handleEmojiClick}/>}
                 </div>
             </div>
-            <form className='input-container'>
+            <form className='input-container' onSubmit={sendChat}>
                 <input type='text' placeholder='type your message here' value={msg} onChange={(e) => setMsg(e.target.value)}/>
                 <button className='submit'>
                     <IoMdSend />
@@ -46,6 +54,10 @@ const Container = styled.div`
     background-color: #080420;
     padding: 0 2rem;
     padding-bottom: 0.3rem;
+    @media screen and (min-width:720px) and (max-width:1080px) {
+            padding: 0 1rem;
+            gap: 1rem;
+        }
     .button-container {
         display: flex;
         align-items: center;
@@ -93,7 +105,6 @@ const Container = styled.div`
         background-color: #ffffff34;
         input {
             width: 90%;
-            height: 60%;
             background-color: transparent;
             color: white;
             border: none;
@@ -114,6 +125,12 @@ const Container = styled.div`
             align-items: center;
             background-color: #9a86f3;
             border: none;
+            @media screen and (min-width:720px) and (max-width:1080px) {
+                padding: 0.3rem 1rem;
+                svg {
+                    font-size:1rem;
+                }
+            }
             svg {
                 font-size: 1.5rem;
                 color: #ffff00c8;

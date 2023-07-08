@@ -1,14 +1,16 @@
 import styled from 'styled-components'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import Contacts from '../Components/Contacts'
-import {allUsersRoute} from '../utilities/APIRoutes'
+import {allUsersRoute,host} from '../utilities/APIRoutes'
 import Welcome from '../Components/Welcome'
 import ChatContainer from '../Components/ChatContainer'
+import { io } from 'socket.io-client'
 
 export default function Chat() {
 
+    const socket = useRef()
     const [contacts, setContacts] = useState([])
     const [currentUser, setCurrentUser] = useState(undefined)
     const navigate = useNavigate()
@@ -24,13 +26,18 @@ export default function Chat() {
             setStatus('success')
            }
     },[])
-    
+
+    useEffect(() => {
+        if (currentUser) {
+            socket.current = io(host)
+            socket.current.emit("add-user",currentUser._id)
+        }
+    },[currentUser])
+
     useEffect(() => {
         const fetchUsers = async () => {
-            console.log("2nd")
             if (currentUser) {
                 if (currentUser.isAvatarImageSet) {
-                    console.log("1st 1st")
                     const data = await axios.get(`${allUsersRoute}/${currentUser._id}`)
                     setContacts(data.data)
                 } else {
@@ -51,7 +58,7 @@ export default function Chat() {
                 <Contacts contacts={contacts} currentUser={currentUser} changeChat={handleChatChange} />
                 {status === "success" && currentChat === undefined ?
                 <Welcome currentUser={currentUser} /> :
-                <ChatContainer currentChat={currentChat} />
+                <ChatContainer socket={socket} currentChat={currentChat} currentUser={currentUser} />
                 }
             </div>
         </Container>

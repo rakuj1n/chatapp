@@ -7,13 +7,6 @@ const messagesRoutes = require('./routes/messagesRoutes')
 const app = express()
 const socket = require('socket.io')
 require('dotenv').config()
-
-app.use(cors())
-app.use(express.json())
-
-app.use('/api/auth',userRoutes)
-app.use('/api/messages',messagesRoutes)
-
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -23,13 +16,19 @@ mongoose.connect(process.env.MONGO_URL, {
     console.log(err.message)
 })
 
+app.use(cors())
+app.use(express.json())
+
+app.use('/api/auth',userRoutes)
+app.use('/api/messages',messagesRoutes)
+
 const server = app.listen(process.env.PORT,() => {
     console.log(`Server started on port ${process.env.PORT}`)
 })
 
 const io = socket(server,{
     cors:{
-        origin:"http://localhost:3000",
+        origin:"*",
         credentials: true,
     }
 })

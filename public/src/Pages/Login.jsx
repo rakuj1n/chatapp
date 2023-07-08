@@ -137,7 +137,7 @@ const FormContainer = styled.div`
             width: 100%;
             font-size: 1rem;
             &:focus {
-                border: 0.1rem solid #997ar0
+                border: 0.1rem solid #997ar0;
                 outline: none;
             }
         }
@@ -166,5 +166,4 @@ const FormContainer = styled.div`
             }
         }
     }
-
 `

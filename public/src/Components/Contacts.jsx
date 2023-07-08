@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Logo from '../assets/logo.svg'
 import styled from 'styled-components'
 
-export default function Contacts({ contacts, currentUser }) {
+export default function Contacts({ contacts, currentUser, changeChat }) {
     const [currentUserName,setCurrentUserName] = useState(undefined)
     const [currentUserImage,setCurrentUserImage] = useState(undefined)
     const [currentSelected,setCurrentSelected] = useState(undefined)
@@ -15,7 +15,8 @@ export default function Contacts({ contacts, currentUser }) {
     },[currentUser])
 
     const changeCurrentChat = (index,contact) => {
-
+        setCurrentSelected(index)
+        changeChat(contact)
     }
 
     return (
@@ -31,7 +32,7 @@ export default function Contacts({ contacts, currentUser }) {
                             {
                                 contacts.map((contact, index) => {
                                     return (
-                                        <div className={`contact ${index === currentSelected ? "selected" : ""}`} key={index}>
+                                        <div className={`contact ${index === currentSelected ? "selected" : ""}`} key={index} onClick={() => changeCurrentChat(index,contact)}>
                                             <div className='avatar'>
                                                 <img src={`data:image/svg+xml;base64,${contact.avatarImage}`} alt='avatar' />
                                             </div>
@@ -95,7 +96,7 @@ const Container = styled.div`
             min-height: 5rem;
             width: 90%;
             cursor:pointer;
-            border-radius: 0.2rem;
+            border-radius: 0.8rem;
             padding: 0.4rem;
             gap: 1rem;
             display: flex;
